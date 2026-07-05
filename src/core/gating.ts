@@ -44,6 +44,17 @@ export const toolApiErrors = new Map<string, unknown>();
  * `{ approved, approvalId, threadId }`. On approval-API failure the error is
  * recorded in {@link toolApiErrors} (keyed by threadId) and rethrown.
  */
+/**
+ * Whether approvals are enabled, controlled by the `AEGMIS_APPROVAL` env var.
+ * Enabled by default: gated tools send approval requests to the backend for a
+ * real human decision. Set `AEGMIS_APPROVAL=false` (or `0`/`no`/`off`) to
+ * auto-approve in-process without ever contacting the backend approval API.
+ */
+export function approvalsEnabled(): boolean {
+  const v = (process.env.AEGMIS_APPROVAL ?? "true").trim().toLowerCase();
+  return v === "true" || v === "1" || v === "yes" || v === "on";
+}
+
 export async function gateCall(
   tool: ToolMeta,
   kwargs: Record<string, unknown>,
@@ -52,6 +63,13 @@ export async function gateCall(
 ): Promise<GateResult> {
   const ctx = currentContext();
   const threadId = ctx?.threadId || randomUUID();
+
+  // Master switch: when approvals are disabled (AEGMIS_APPROVAL=false),
+  // auto-approve without contacting the backend.
+  if (!approvalsEnabled()) {
+    return { approved: true, approvalId: "", threadId };
+  }
+
   const payload = {
     action: opts.action || tool.name,
     message: opts.message || `Approval required for ${tool.name}`,

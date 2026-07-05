@@ -2,7 +2,7 @@
  * Console / local-approval example. Port of `intrupt_py_sdk/example/console_agent.py`.
  *
  * Fully self-contained: it approves on the terminal via `onApprovalAsync`, so it
- * needs NO approval API server and NO APPROVAL_API_KEY — only OPENAI_API_KEY.
+ * needs NO approval API server and NO AEGMIS_API_KEY — only OPENAI_API_KEY.
  * This is the quickest way to see the pending → resume flow end to end.
  *
  * Reference file, NOT part of the built library. Install extras first:

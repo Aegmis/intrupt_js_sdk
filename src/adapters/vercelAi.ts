@@ -15,7 +15,7 @@
  * import { approvalRequired } from "intrupt-js-sdk/vercel";
  * import { ApprovalMiddleware, ApprovalRunner } from "intrupt-js-sdk";
  *
- * ApprovalMiddleware.configure({ baseUrl: process.env.APPROVAL_BASE_URL, apiKey: process.env.APPROVAL_API_KEY });
+ * ApprovalMiddleware.configure({ baseUrl: process.env.AEGMIS_BASE_URL, apiKey: process.env.AEGMIS_API_KEY });
  *
  * const purchaseStock = approvalRequired(
  *   { action: "purchase_stock", message: "Approve buying shares", channel: "slack", args: ["symbol", "quantity"] },

@@ -17,7 +17,7 @@
  * import { ApprovalGraph, gateHandler } from "intrupt-js-sdk/langgraph";
  * import { ApprovalMiddleware } from "intrupt-js-sdk";
  *
- * ApprovalMiddleware.configure({ baseUrl: process.env.APPROVAL_BASE_URL, apiKey: process.env.APPROVAL_API_KEY });
+ * ApprovalMiddleware.configure({ baseUrl: process.env.AEGMIS_BASE_URL, apiKey: process.env.AEGMIS_API_KEY });
  *
  * const purchaseStock = tool(
  *   gateHandler(async ({ symbol, quantity }) => ({ status: "success", symbol, quantity }),

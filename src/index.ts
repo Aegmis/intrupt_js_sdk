@@ -41,6 +41,9 @@ export { ApprovalGraph, type ApprovalGraphOptions } from "./adapters/langgraph";
 // Shared gating types
 export type { ApprovalOptions, ToolMeta, GateResult } from "./core/gating";
 
+// Master approval switch (reads the AEGMIS_APPROVAL env var)
+export { approvalsEnabled } from "./core/gating";
+
 // Gate primitives — useful for building a custom /resume endpoint server-side.
 export * as gate from "./core/gate";
 

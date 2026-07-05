@@ -122,9 +122,9 @@ export class ApprovalClient implements ApprovalCreator {
   private readonly orgId: string;
 
   constructor(options: ApprovalClientOptions = {}) {
-    const baseUrl = options.baseUrl ?? process.env.APPROVAL_BASE_URL ?? "";
+    const baseUrl = options.baseUrl ?? process.env.AEGMIS_BASE_URL ?? "";
     this.baseUrl = baseUrl.replace(/\/+$/, "");
-    this.apiKey = options.apiKey ?? process.env.APPROVAL_API_KEY;
+    this.apiKey = options.apiKey ?? process.env.AEGMIS_API_KEY;
     this.timeout = options.timeout ?? 10;
     this.orgId = this.extractOrgIdFromApiKey();
   }

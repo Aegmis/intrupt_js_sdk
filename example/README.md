@@ -38,8 +38,8 @@ example:
 
 ```bash
 export OPENAI_API_KEY=sk-...
-export APPROVAL_BASE_URL=http://localhost:8080
-export APPROVAL_API_KEY=sk_org_org_..._<hash>
+export AEGMIS_BASE_URL=http://localhost:8080
+export AEGMIS_API_KEY=sk_org_org_..._<hash>
 export AGENT_PUBLIC_URL=http://localhost:8081
 export AGENT_RESUME_SECRET=$(openssl rand -hex 16)
 

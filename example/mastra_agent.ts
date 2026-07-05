@@ -9,7 +9,7 @@
  *   npm i @mastra/core@^1 @ai-sdk/openai zod express
  *   npm i -D tsx @types/express
  *
- * Env: OPENAI_API_KEY, APPROVAL_BASE_URL, APPROVAL_API_KEY, AGENT_PUBLIC_URL, AGENT_RESUME_SECRET.
+ * Env: OPENAI_API_KEY, AEGMIS_BASE_URL, AEGMIS_API_KEY, AGENT_PUBLIC_URL, AGENT_RESUME_SECRET.
  * Run: npx tsx example/mastra_agent.ts
  */
 import { Agent } from "@mastra/core/agent";
@@ -21,8 +21,8 @@ import { approvalRequired } from "intrupt-js-sdk/mastra";
 import { agentConfig, startApprovalServer } from "./_server";
 
 ApprovalMiddleware.configure({
-  baseUrl: process.env.APPROVAL_BASE_URL ?? "http://localhost:8080",
-  apiKey: process.env.APPROVAL_API_KEY,
+  baseUrl: process.env.AEGMIS_BASE_URL ?? "http://localhost:8080",
+  apiKey: process.env.AEGMIS_API_KEY,
 });
 const { publicUrl, port, resumeSecret } = agentConfig();
 

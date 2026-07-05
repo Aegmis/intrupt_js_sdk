@@ -35,8 +35,8 @@ import { ApprovalMiddleware, ApprovalRunner } from "intrupt-js-sdk";
 import { approvalRequired } from "intrupt-js-sdk/vercel";
 
 ApprovalMiddleware.configure({
-  baseUrl: process.env.APPROVAL_BASE_URL, // http://localhost:8080
-  apiKey: process.env.APPROVAL_API_KEY,   // sk_org_org_..._<hash>
+  baseUrl: process.env.AEGMIS_BASE_URL, // http://localhost:8080
+  apiKey: process.env.AEGMIS_API_KEY,   // sk_org_org_..._<hash>
 });
 
 const purchaseStock = approvalRequired(
@@ -69,6 +69,25 @@ Agents, Mastra, LangChain.js, LangGraph.js) plus `console_agent.ts` — a
 self-contained terminal-approval demo that needs no API server or key. The
 HTTP examples share `_server.ts`, which exposes `/call-tool` and `/resume`,
 mirroring the Python `example/agent.py`.
+
+## Environment variables
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `AEGMIS_APPROVAL` | `true` | **Master switch.** Enabled by default → gated tools send approval requests to the backend API for a real human decision. Set to `false` (or `0` / `no` / `off`) to **auto-approve** in-process with no backend call. |
+| `AEGMIS_BASE_URL` | — | Base URL of the approval API (e.g. `https://api.aegmis.com` or `http://localhost:8080`). Required when approvals are enabled (the default). |
+| `AEGMIS_API_KEY` | — | Org API key, format `sk_org_{org_id}_{hash}`. Required when approvals are enabled (the default). |
+| `AGENT_RESUME_SECRET` | — | Shared secret the backend sends as `X-Agent-Secret` when it calls your `/resume` endpoint. |
+
+By default (`AEGMIS_APPROVAL` unset or `true`) a gated tool sends a real approval
+request and blocks until a human decides — so configure `AEGMIS_BASE_URL` /
+`AEGMIS_API_KEY`. Set `AEGMIS_APPROVAL=false` to auto-approve in-process — handy
+for local development, the Mastra studio, and tests. Check the current state at
+runtime with `approvalsEnabled()`.
+
+> ⚠️ **Migrating from ≤ `0.0.1-alpha.0`:** the env vars were renamed
+> `APPROVAL_BASE_URL` → `AEGMIS_BASE_URL` and `APPROVAL_API_KEY` → `AEGMIS_API_KEY`
+> (no fallback). Update your environment.
 
 ## The two-step run/resume flow
 

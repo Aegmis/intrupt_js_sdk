@@ -73,6 +73,26 @@ describe("ApprovalRunner", () => {
     expect(second.status).toBe("already_resolved");
   });
 
+  it("auto-approves without contacting the client when AEGMIS_APPROVAL is disabled", async () => {
+    const prev = process.env.AEGMIS_APPROVAL;
+    process.env.AEGMIS_APPROVAL = "false"; // default behaviour
+    ApprovalMiddleware.reset();
+    const local = new FakeClient();
+    ApprovalMiddleware.setClient(local as unknown as ApprovalClient);
+    try {
+      const { approved } = await gateCall(
+        { name: "purchase" },
+        { symbol: "AAPL", quantity: 5 },
+        {},
+        "test",
+      );
+      expect(approved).toBe(true);
+      expect(local.seen.length).toBe(0); // never sent a request to the backend
+    } finally {
+      process.env.AEGMIS_APPROVAL = prev;
+    }
+  });
+
   it("uses onApprovalAsync instead of the HTTP client when provided", async () => {
     ApprovalMiddleware.reset(); // ensure no HTTP client is available
     let asked: string | undefined;

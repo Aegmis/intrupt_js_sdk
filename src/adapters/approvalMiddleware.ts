@@ -24,8 +24,8 @@ export class ApprovalMiddleware {
   static configure(options: ApprovalClientOptions = {}): ApprovalMiddleware {
     if (!ApprovalMiddleware.instance) {
       ApprovalMiddleware.instance = new ApprovalMiddleware({
-        baseUrl: options.baseUrl ?? process.env.APPROVAL_BASE_URL,
-        apiKey: options.apiKey ?? process.env.APPROVAL_API_KEY,
+        baseUrl: options.baseUrl ?? process.env.AEGMIS_BASE_URL,
+        apiKey: options.apiKey ?? process.env.AEGMIS_API_KEY,
         timeout: options.timeout,
       });
     }
