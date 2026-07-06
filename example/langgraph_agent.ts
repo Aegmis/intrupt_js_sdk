@@ -70,6 +70,7 @@ const approvalGraph = new ApprovalGraph({
   callbackSecret: resumeSecret,
 });
 
+console.log('[langgraph] stock agent ready — POST /call-tool {"message":"buy 10 shares of AAPL"}');
 startApprovalServer(approvalGraph, {
   port,
   resumeSecret,

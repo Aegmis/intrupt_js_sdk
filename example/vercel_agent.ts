@@ -61,4 +61,5 @@ const runner = new ApprovalRunner({
   formatResult: (raw, threadId) => ({ status: "complete", thread_id: threadId, result: (raw as { text: string }).text }),
 });
 
+console.log('[vercel] stock agent ready — POST /call-tool {"message":"buy 10 shares of AAPL"}');
 startApprovalServer(runner, { port, resumeSecret });

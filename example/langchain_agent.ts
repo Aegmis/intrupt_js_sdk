@@ -59,4 +59,5 @@ const runner = new ApprovalRunner({
   invoke: (input) => agentLoop(String(input)),
 });
 
+console.log('[langchain] stock agent ready — POST /call-tool {"message":"buy 10 shares of AAPL"}');
 startApprovalServer(runner, { port, resumeSecret });

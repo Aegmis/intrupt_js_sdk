@@ -38,6 +38,7 @@ export function startApprovalServer(runner: Runnerish, opts: ServerOptions): voi
     if (!message) return res.status(400).json({ detail: "'message' required" });
 
     const threadId: string = req.body?.thread_id ?? crypto.randomUUID();
+    console.log(`[call-tool] thread=${threadId} message=${JSON.stringify(message)}`);
     if (req.body?.thread_id && runner.pending(threadId)) {
       return res.status(409).json({
         detail: "thread has a pending approval — approve or reject before sending new messages",
@@ -46,25 +47,39 @@ export function startApprovalServer(runner: Runnerish, opts: ServerOptions): voi
 
     const result = await runner.run(threadId, inputFor(message));
     if (result.status === "error") {
+      console.log(`[call-tool] thread=${threadId} ERROR: ${result.error}`);
       return res.status((result.status_code as number) ?? 502).json({ detail: result.error });
     }
+    console.log(
+      `[call-tool] thread=${threadId} -> ${result.status}` +
+        (result.approval_id ? ` (approval_id=${result.approval_id})` : ""),
+    );
     res.json(result);
   });
 
   app.post("/resume", async (req, res) => {
+    const body = req.body ?? {};
+    console.log(
+      `[resume] callback received: thread=${body.thread_id} approved=${body.approved}` +
+        ` approval_id=${body.approval_id}`,
+    );
     // Constant-time compare so the secret can't be recovered via response timing.
     if (resumeSecret) {
       const got = req.header("X-Agent-Secret") ?? "";
       const ok =
         got.length === resumeSecret.length &&
         crypto.timingSafeEqual(Buffer.from(got), Buffer.from(resumeSecret));
-      if (!ok) return res.status(401).json({ detail: "missing or invalid X-Agent-Secret" });
+      if (!ok) {
+        console.log("[resume] REJECTED: missing or invalid X-Agent-Secret");
+        return res.status(401).json({ detail: "missing or invalid X-Agent-Secret" });
+      }
     }
 
-    const { thread_id, approved, approval_id } = req.body ?? {};
+    const { thread_id, approved, approval_id } = body;
     if (!thread_id) return res.status(400).json({ detail: "thread_id required" });
     if (approved === undefined) return res.status(400).json({ detail: "approved required" });
     if (!runner.pending(thread_id)) {
+      console.log(`[resume] no pending gate for thread=${thread_id} (already decided or unknown)`);
       return res.status(409).json({
         detail: "thread is not paused on an approval (no pending gate or already decided)",
       });
@@ -74,6 +89,10 @@ export function startApprovalServer(runner: Runnerish, opts: ServerOptions): voi
     if (result.status === "accepted") {
       result = await runner.waitForResult(thread_id);
     }
+    console.log(
+      `[resume] thread=${thread_id} ${approved ? "APPROVED" : "REJECTED"} -> ${result.status}` +
+        (result.result !== undefined ? `: ${JSON.stringify(result.result)}` : ""),
+    );
     res.json(result);
   });
 

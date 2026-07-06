@@ -63,4 +63,5 @@ const runner = new ApprovalRunner({
   }),
 });
 
+console.log('[mastra] stock agent ready — POST /call-tool {"message":"buy 10 shares of AAPL"}');
 startApprovalServer(runner, { port, resumeSecret });
