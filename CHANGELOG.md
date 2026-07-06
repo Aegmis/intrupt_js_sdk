@@ -2,6 +2,28 @@
 
 ---
 
+## 0.0.1-alpha.2 — 2026-07-05
+
+### Fixed: OpenAI Agents adapter sent empty approval kwargs
+
+`@openai/agents` calls tools as `invoke(runContext, input, details)` — the tool
+arguments are the JSON string in the **second** arg. The adapter was passing the
+first arg (`runContext`) as the kwargs, so every approval request went out with an
+empty `tool_kwargs`. With no args a policy condition couldn't match → the backend
+auto-approved → approvals appeared to "not trigger". The adapter now extracts the
+input correctly (parses the `invoke` JSON input; falls back to the first arg for the
+legacy `execute(parsedArgs)` shape).
+
+### Changed: zero runtime dependencies
+
+Moved `express`, `zod`, `dotenv`, `@ai-sdk/openai`, and `@langchain/openai` from
+`dependencies` to `devDependencies` — they are only used by the examples, never by
+`src/`. `npm i intrupt-js-sdk` now installs with **no runtime dependencies**; the
+framework packages (`ai`, `@mastra/core`, `@openai/agents`, `@langchain/core`,
+`@langchain/langgraph`) remain optional peer dependencies.
+
+---
+
 ## 0.0.1-alpha.1 — 2026-07-05
 
 ### ⚠️ Breaking: approval env vars renamed
