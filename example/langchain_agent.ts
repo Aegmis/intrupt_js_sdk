@@ -10,6 +10,7 @@
  * Env: OPENAI_API_KEY, AEGMIS_BASE_URL, AEGMIS_API_KEY, AGENT_PUBLIC_URL, AGENT_RESUME_SECRET.
  * Run: npx tsx example/langchain_agent.ts
  */
+import "./env"; // load .env before reading process.env
 import { tool } from "@langchain/core/tools";
 import { HumanMessage } from "@langchain/core/messages";
 import { ChatOpenAI } from "@langchain/openai";

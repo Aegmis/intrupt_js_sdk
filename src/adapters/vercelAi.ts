@@ -22,7 +22,7 @@
  *   "purchase_stock",
  * )(tool({
  *   description: "Purchase a quantity of a stock symbol.",
- *   parameters: z.object({ symbol: z.string(), quantity: z.number() }),
+ *   inputSchema: z.object({ symbol: z.string(), quantity: z.number() }),
  *   execute: async ({ symbol, quantity }) => ({ status: "success", symbol, quantity }),
  * }));
  *

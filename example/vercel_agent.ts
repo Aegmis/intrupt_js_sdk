@@ -12,7 +12,8 @@
  * Run: npx tsx example/vercel_agent.ts
  * Smoke test: POST http://localhost:8081/call-tool {"message":"buy 10 shares of AAPL"}
  */
-import { generateText, tool } from "ai";
+import "./env"; // load .env before reading process.env
+import { generateText, stepCountIs, tool } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { ApprovalMiddleware, ApprovalRunner } from "intrupt-js-sdk";
@@ -27,7 +28,7 @@ const { publicUrl, port, resumeSecret } = agentConfig();
 
 const getStockPrice = tool({
   description: "Fetch latest stock price for a symbol (e.g. 'AAPL').",
-  parameters: z.object({ symbol: z.string() }),
+  inputSchema: z.object({ symbol: z.string() }),
   execute: async ({ symbol }) => ({ symbol, price: 123.45 }),
 });
 
@@ -37,7 +38,7 @@ const purchaseStock = approvalRequired(
 )(
   tool({
     description: "Purchase a given quantity of a stock symbol.",
-    parameters: z.object({ symbol: z.string(), quantity: z.number(), amount: z.number() }),
+    inputSchema: z.object({ symbol: z.string(), quantity: z.number(), amount: z.number() }),
     execute: async ({ symbol, quantity, amount }) => ({
       status: "success",
       message: `Purchase order placed for ${quantity} shares of ${symbol}.`,
@@ -54,8 +55,9 @@ const runner = new ApprovalRunner({
   invoke: (input) =>
     generateText({
       model: openai("gpt-4o-mini"),
+      system: "You help the user buy stocks. Use the purchase_stock tool when asked to buy shares.",
       tools: { getStockPrice, purchaseStock },
-      maxSteps: 5,
+      stopWhen: stepCountIs(5), // ai v5+: replaces the removed `maxSteps`
       prompt: String(input),
     }),
   formatResult: (raw, threadId) => ({ status: "complete", thread_id: threadId, result: (raw as { text: string }).text }),

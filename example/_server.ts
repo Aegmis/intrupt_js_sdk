@@ -104,7 +104,7 @@ export function agentConfig() {
   const publicUrl = process.env.AGENT_PUBLIC_URL ?? "http://localhost:8081";
   return {
     publicUrl,
-    port: Number(new URL(publicUrl).port || 8082),
+    port: Number(new URL(publicUrl).port || 8081),
     resumeSecret: process.env.AGENT_RESUME_SECRET ?? "",
   };
 }

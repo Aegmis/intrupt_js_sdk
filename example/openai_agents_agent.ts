@@ -8,6 +8,7 @@
  * Env: OPENAI_API_KEY, AEGMIS_BASE_URL, AEGMIS_API_KEY, AGENT_PUBLIC_URL, AGENT_RESUME_SECRET.
  * Run: npx tsx example/openai_agents_agent.ts
  */
+import "./env";
 import { Agent, run, tool } from "@openai/agents";
 import { z } from "zod";
 import { ApprovalMiddleware, ApprovalRunner } from "intrupt-js-sdk";

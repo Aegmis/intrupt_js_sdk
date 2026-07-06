@@ -12,6 +12,7 @@
  * Env: OPENAI_API_KEY, AEGMIS_BASE_URL, AEGMIS_API_KEY, AGENT_PUBLIC_URL, AGENT_RESUME_SECRET.
  * Run: npx tsx example/mastra_agent.ts
  */
+import "./env"; // load .env before reading process.env
 import { Agent } from "@mastra/core/agent";
 import { createTool } from "@mastra/core/tools";
 import { openai } from "@ai-sdk/openai";

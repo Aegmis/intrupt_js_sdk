@@ -28,7 +28,7 @@ Framework glue is loaded from subpaths so you only pull in the peer dep you use:
 ## Quick start (Vercel AI SDK)
 
 ```ts
-import { generateText, tool } from "ai";
+import { generateText, stepCountIs, tool } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { ApprovalMiddleware, ApprovalRunner } from "intrupt-js-sdk";
@@ -44,7 +44,7 @@ const purchaseStock = approvalRequired(
   "purchase_stock",
 )(tool({
   description: "Buy shares of a stock.",
-  parameters: z.object({ symbol: z.string(), quantity: z.number() }),
+  inputSchema: z.object({ symbol: z.string(), quantity: z.number() }),
   execute: async ({ symbol, quantity }) => ({ status: "success", symbol, quantity }),
 }));
 
@@ -52,7 +52,7 @@ const runner = new ApprovalRunner({
   callbackUrl: "http://localhost:8081/resume",
   callbackSecret: process.env.AGENT_RESUME_SECRET,
   invoke: (input) =>
-    generateText({ model: openai("gpt-4o-mini"), tools: { purchaseStock }, maxSteps: 5, prompt: String(input) }),
+    generateText({ model: openai("gpt-4o-mini"), tools: { purchaseStock }, stopWhen: stepCountIs(5), prompt: String(input) }),
   formatResult: (raw, threadId) => ({ status: "complete", thread_id: threadId, result: (raw as any).text }),
 });
 

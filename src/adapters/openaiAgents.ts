@@ -40,9 +40,38 @@ import { gateCall, type ApprovalOptions } from "../core/gating";
 interface OpenAITool {
   name?: string;
   description?: string;
-  execute?: (args: Record<string, unknown>, ctx?: unknown) => unknown;
-  invoke?: (args: Record<string, unknown>, ctx?: unknown) => unknown;
+  // The handler differs by @openai/agents version: current tools expose
+  // `invoke(runContext, inputJSON, details)`; older ones an `execute(parsedArgs, ctx)`.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  execute?: (...args: any[]) => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  invoke?: (...args: any[]) => any;
   [key: string]: unknown;
+}
+
+/**
+ * Pull the tool's argument object out of the handler call so the approval
+ * request carries the real tool kwargs (symbol, quantity, …).
+ *
+ * - `invoke(runContext, input, details)` — the arguments are the SECOND arg,
+ *   a JSON string (parse it) or already an object.
+ * - `execute(parsedArgs, ctx)` — the arguments are the FIRST arg.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractKwargs(key: "execute" | "invoke", callArgs: any[]): Record<string, unknown> {
+  if (key === "invoke") {
+    const input = callArgs[1];
+    if (typeof input === "string") {
+      try {
+        return JSON.parse(input) as Record<string, unknown>;
+      } catch {
+        return {};
+      }
+    }
+    return input && typeof input === "object" ? (input as Record<string, unknown>) : {};
+  }
+  const first = callArgs[0];
+  return first && typeof first === "object" ? (first as Record<string, unknown>) : {};
 }
 
 /**
@@ -54,20 +83,23 @@ export function approvalRequired(opts: ApprovalOptions) {
     const toolName = toolDef.name ?? opts.action ?? "tool";
     // Different @openai/agents versions expose the handler as `execute` or `invoke`.
     const key: "execute" | "invoke" = typeof toolDef.execute === "function" ? "execute" : "invoke";
-    const original = toolDef[key] as OpenAITool["execute"];
+    const original = toolDef[key];
     const gated: OpenAITool = {
       ...toolDef,
-      [key]: async (args: Record<string, unknown>, ctx?: unknown) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [key]: async (...callArgs: any[]) => {
         const { approved } = await gateCall(
           { name: toolName, description: toolDef.description },
-          args ?? {},
+          extractKwargs(key, callArgs),
           opts,
           "openai_agents",
         );
         if (!approved) {
           return { status: "cancelled", tool: toolName };
         }
-        return original ? original(args, ctx) : undefined;
+        // Forward the original args untouched so the tool runs exactly as the
+        // framework intended once approved.
+        return original ? original(...callArgs) : undefined;
       },
     };
     return gated as T;
