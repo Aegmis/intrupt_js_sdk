@@ -27,6 +27,16 @@ export {
 // Process-wide client holder
 export { ApprovalMiddleware } from "./adapters/approvalMiddleware";
 
+// Observability (push to the aegmis_obs dashboard) — auto-inits from
+// AEGMIS_OTLP_ENDPOINT; explicit init overrides. Fail-open by design.
+export {
+  initObservability,
+  shutdownObservability,
+  startRecord,
+  type CallRecorder,
+  type ObservabilityOptions,
+} from "./core/observability";
+
 // Generic approval-aware runner (works with any framework via an `invoke` thunk)
 export {
   ApprovalRunner,
@@ -43,6 +53,9 @@ export type { ApprovalOptions, ToolMeta, GateResult } from "./core/gating";
 
 // Master approval switch (reads the AEGMIS_APPROVAL env var)
 export { approvalsEnabled } from "./core/gating";
+
+// Startup config check — surfaces missing/invalid AEGMIS_* config with clear messages
+export { preflight, preflightCheck, type PreflightIssue } from "./core/preflight";
 
 // Gate primitives — useful for building a custom /resume endpoint server-side.
 export * as gate from "./core/gate";

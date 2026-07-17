@@ -8,6 +8,7 @@ import { ApprovalMiddleware } from "../adapters/approvalMiddleware";
 import { filterKwargs } from "../utils/filterKwargs";
 import { currentContext } from "./context";
 import * as gate from "./gate";
+import { startRecord } from "./observability";
 
 export interface ApprovalOptions {
   /** Short action id (defaults to the tool name). */
@@ -70,8 +71,9 @@ export async function gateCall(
     return { approved: true, approvalId: "", threadId };
   }
 
-  const payload = {
-    action: opts.action || tool.name,
+  const action = opts.action || tool.name;
+  const payload: Record<string, unknown> = {
+    action,
     message: opts.message || `Approval required for ${tool.name}`,
     channel: opts.channel || "slack",
     tool: {
@@ -84,16 +86,23 @@ export async function gateCall(
     adapter,
   };
 
+  // Observability: no-op unless AEGMIS_OTLP_ENDPOINT (or initObservability) is
+  // configured; fail-open — never blocks or breaks the gate.
+  const rec = startRecord(tool.name, adapter, action, threadId);
+
   const client = ctx?.onApprovalClient ?? ApprovalMiddleware.getClient();
   let approvalId: string;
   let future: Promise<boolean>;
   try {
     ({ approvalId, future } = await gate.requestApproval(client, threadId, payload));
   } catch (err) {
+    rec.finish("error");
     toolApiErrors.set(threadId, err);
     throw err;
   }
+  rec.requested(approvalId, payload);
 
   const approved = await future;
+  rec.finish(approved ? "approved" : "rejected");
   return { approved, approvalId, threadId };
 }

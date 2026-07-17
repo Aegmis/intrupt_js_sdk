@@ -40,8 +40,20 @@ export async function requestApproval(
   payload: Record<string, unknown>,
 ): Promise<RequestApprovalResult> {
   const result = await client.createApproval({ thread_id: sessionId, ...payload });
+  // Stash the API's policy evaluation (which policy/conditions matched) onto the
+  // caller's payload object: gateCall passes this same object to the
+  // observability recorder, which forwards it to the obs dashboard.
+  const policyEval = (result as Record<string, unknown>).policy_eval;
+  if (policyEval != null) payload._policy_eval = policyEval;
   const status = result.status ?? "";
   if (status !== "pending") {
+    // Auto-decided by policy (below-threshold allow / audit-only / auto-reject):
+    // no approval_id exists, only an audit_id. Stash the auto outcome so
+    // observability can still record the call WITH its payload and mark it as
+    // policy-decided instead of silently dropping it.
+    payload._auto_status = status || "approved";
+    const auditId = (result as Record<string, unknown>).audit_id;
+    if (auditId) payload._audit_id = auditId;
     return {
       approvalId: result.approval_id ?? "",
       future: Promise.resolve(status === "approved" || status === "audited"),
