@@ -2,6 +2,36 @@
 
 ---
 
+## 0.0.1-alpha.3 — 2026-07-06
+
+### Added: `createApprovalServer` — optional, zero-dependency HTTP server
+
+New helper from the `intrupt-js-sdk/server` subpath (built on Node's `http`, no
+express) that exposes `POST /call-tool` and `POST /resume` for an `ApprovalRunner`
+or `ApprovalGraph`:
+
+```ts
+import { createApprovalServer } from "intrupt-js-sdk/server";
+createApprovalServer({ runner }); // port + secret default from AGENT_PUBLIC_URL / AGENT_RESUME_SECRET
+```
+
+Fully optional — wire the two endpoints into your own server (express, fastify,
+Next.js route handlers) instead if you prefer; the runner only needs
+`run` / `resume` / `waitForResult` / `pending`. Keeps the core dependency-free.
+
+### Added: `preflight()` / `preflightCheck()` startup config check
+
+Surface common misconfigurations (approvals enabled but no `AEGMIS_API_KEY`,
+malformed key, missing base URL) at boot with a clear message instead of a
+runtime `Invalid or expired token`:
+
+```ts
+import { preflightCheck } from "intrupt-js-sdk";
+preflightCheck(); // logs warnings/errors; pass { throwOnError: true } to hard-fail
+```
+
+---
+
 ## 0.0.1-alpha.2 — 2026-07-05
 
 ### Fixed: OpenAI Agents adapter sent empty approval kwargs

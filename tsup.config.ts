@@ -3,6 +3,7 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: [
     "src/index.ts",
+    "src/server.ts",
     "src/adapters/vercelAi.ts",
     "src/adapters/openaiAgents.ts",
     "src/adapters/mastra.ts",

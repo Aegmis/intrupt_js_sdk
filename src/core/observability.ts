@@ -94,9 +94,16 @@ function postJson(path: string, body: Record<string, unknown>): void {
   if (!endpoint) return;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 3000);
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const apiKey = process.env.AEGMIS_API_KEY;
+  if (apiKey) {
+    // Ingest auth: the obs service derives the org from this key server-side
+    // (the body org_id is only a dev-mode fallback).
+    headers.Authorization = `Bearer ${apiKey}`;
+  }
   const p = fetch(`${endpoint}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
     signal: controller.signal,
   })

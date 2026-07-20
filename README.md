@@ -1,5 +1,8 @@
 # intrupt-js-sdk
 
+Put a human in front of your AI agent's riskiest actions. A high-stakes tool call
+pauses for approval, routes to Slack, and resumes automatically — with a full audit trail.
+
 JavaScript/TypeScript client SDK + framework adapters for the human-in-the-loop
 approval API. This is the JS counterpart of [`intrupt_py_sdk`](../intrupt_py_sdk)
 and talks to the **same** approval API (`intrupt_api`, port `8080`) over the same
