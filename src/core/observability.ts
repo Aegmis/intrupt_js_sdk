@@ -20,7 +20,7 @@
  *     args and WHICH condition was under the limit instead of nothing.
  *
  * Configuration (all optional):
- *   AEGMIS_OTLP_ENDPOINT   obs service base URL (e.g. http://localhost:8090)
+ *   AEGMIS_OTLP_ENDPOINT   obs service base URL (e.g. https://obs.aegmis.com)
  *   AEGMIS_ORG_ID          explicit tenant override
  *   AEGMIS_API_KEY         fallback tenant source (sk_org_{org_id}_{hash})
  *   AEGMIS_ENABLE_TRACING  default TRUE; set "false"/"0"/"no"/"off" to disable
